@@ -494,32 +494,29 @@ class CodexBackend:
 
     def _build_exec_argv(
         self,
-        prompt: str,
         workspace: Path,
         *,
         sandbox: str = "workspace-write",
         session_id: str | None = None,
-        output_schema: dict[str, Any] | None = None,
     ) -> list[str]:
         """Build the codex exec argv array.
 
+        Prompt is delivered via stdin (positional arg is '-').
         Never uses shell=True. Never uses dangerous bypass flag.
         """
-        assert_no_dangerous_flag([prompt])  # Validate prompt doesn't contain dangerous flags
-
         argv = [
             self._codex_bin,
             "exec",
             "--json",
             f"--sandbox={sandbox}",
+            "--skip-git-repo-check",
             "-C",
             str(workspace),
+            "-",  # Read prompt from stdin
         ]
 
         if session_id:
             argv.extend(["resume", session_id])
-
-        argv.append(prompt)
 
         # Validate no dangerous flag leaked in
         assert_no_dangerous_flag(argv)
@@ -528,6 +525,7 @@ class CodexBackend:
     def _run_codex(
         self,
         argv: list[str],
+        prompt: str,
         workspace: Path,
         timeout: float,
     ) -> AgentResult:
@@ -544,6 +542,7 @@ class CodexBackend:
                 argv,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
                 cwd=str(workspace),
                 env=clean_env,
                 preexec_fn=os.setsid,  # New process group for clean kill
@@ -556,7 +555,10 @@ class CodexBackend:
             )
 
         try:
-            stdout, stderr = proc.communicate(timeout=timeout)
+            stdout, stderr = proc.communicate(
+                input=prompt.encode("utf-8"),
+                timeout=timeout,
+            )
         except subprocess.TimeoutExpired:
             _kill_process_group(proc)
             return AgentResult(
@@ -583,7 +585,22 @@ class CodexBackend:
 
         for evt in events_data:
             evt_type = evt.get("type", evt.get("event", "message"))
-            content = evt.get("content", evt.get("message", evt.get("text", "")))
+
+            # Extract content from various event shapes
+            # Real Codex puts text inside item.completed.item.text
+            content = ""
+            if "content" in evt:
+                content = evt["content"]
+            elif "message" in evt:
+                content = evt["message"]
+            elif "text" in evt:
+                content = evt["text"]
+            elif evt_type == "item.completed" and "item" in evt:
+                item = evt["item"]
+                if isinstance(item, dict) and item.get("type") == "agent_message":
+                    content = item.get("text", "")
+                elif isinstance(item, dict) and item.get("text"):
+                    content = item["text"]
 
             # Extract session/thread IDs
             if "session_id" in evt:
@@ -591,14 +608,13 @@ class CodexBackend:
             if "thread_id" in evt:
                 thread_id = evt["thread_id"]
 
-            if evt_type in ("message", "assistant", "completed"):
-                if content and not last_message:
-                    last_message = content
+            if evt_type in ("message", "assistant", "completed", "item.completed"):
                 if content:
+                    last_message = redact_secrets(str(content))
                     events.append(
                         AgentEvent(
                             event_type="message",
-                            content=redact_secrets(str(content)),
+                            content=last_message,
                             metadata=evt,
                         )
                     )
@@ -620,13 +636,6 @@ class CodexBackend:
                 )
 
         success = proc.returncode == 0
-
-        # If we have structured events, the last "done"/"completed" message is the real last_message
-        for evt in reversed(events_data):
-            msg = evt.get("last_message") or evt.get("content") or evt.get("message", "")
-            if msg:
-                last_message = redact_secrets(str(msg))
-                break
 
         error = ""
         if not success:
@@ -663,8 +672,8 @@ class CodexBackend:
                 error="Codex CLI not found. Set POINTER_CODEX_BIN or install codex.",
             )
 
-        argv = self._build_exec_argv(prompt, workspace, sandbox="workspace-write", output_schema=output_schema)
-        return self._run_codex(argv, workspace, timeout)
+        argv = self._build_exec_argv(workspace, sandbox="workspace-write")
+        return self._run_codex(argv, prompt, workspace, timeout)
 
     def repair(
         self,
@@ -681,8 +690,8 @@ class CodexBackend:
                 error="Codex CLI not found.",
             )
 
-        argv = self._build_exec_argv(prompt, workspace, sandbox="workspace-write", session_id=session_id)
-        return self._run_codex(argv, workspace, timeout)
+        argv = self._build_exec_argv(workspace, sandbox="workspace-write", session_id=session_id)
+        return self._run_codex(argv, prompt, workspace, timeout)
 
 
 def get_backend(name: str, **kwargs: Any) -> AgentBackend:

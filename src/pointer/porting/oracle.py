@@ -15,6 +15,7 @@ Security:
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -115,6 +116,16 @@ def capture_case(
     if extra_env:
         for key, val in extra_env.items():
             clean_env[key] = val
+
+    # If the source repo uses a src/ layout, add it to PYTHONPATH so
+    # `python -m <module>` can find the package.
+    src_dir = source_root / "src"
+    if src_dir.is_dir():
+        existing_pp = clean_env.get("PYTHONPATH", "")
+        if existing_pp:
+            clean_env["PYTHONPATH"] = str(src_dir) + os.pathsep + existing_pp
+        else:
+            clean_env["PYTHONPATH"] = str(src_dir)
 
     # Prepare stdin
     stdin_data = case.stdin.encode("utf-8") if case.stdin else None

@@ -1,0 +1,864 @@
+{
+  "schema_version": "1.0",
+  "report_type": "porting",
+  "generated_at": "2026-07-31T04:52:53+00:00",
+  "run": {
+    "run_id": "20260731-045053-71a720",
+    "schema_version": "1",
+    "source_path": "/Users/pilk/.hermes/kanban/boards/madoka-works/workspaces/t_0f01784a/examples/tinycalc",
+    "target_lang": "rust",
+    "agent_backend": "codex",
+    "stage": "complete",
+    "verdict": "verified",
+    "created_at": "2026-07-31T04:50:53+00:00",
+    "updated_at": "2026-07-31T04:52:53+00:00",
+    "output_dir": "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720",
+    "run_dir": "/tmp/pointer-e2e/.pointer/runs/20260731-045053-71a720",
+    "allow_source_execution": true,
+    "auto_yes": true,
+    "max_repairs": 3,
+    "oracle_cases": [
+      {
+        "name": "basic_add",
+        "command": [
+          "python",
+          "-m",
+          "tinycalc",
+          "1",
+          "+",
+          "2"
+        ],
+        "stdin": null,
+        "expected_exit": 0,
+        "expected_stdout": null,
+        "expected_stderr": null,
+        "timeout": 30.0,
+        "env_allowlist": []
+      },
+      {
+        "name": "basic_subtract",
+        "command": [
+          "python",
+          "-m",
+          "tinycalc",
+          "10",
+          "-",
+          "4"
+        ],
+        "stdin": null,
+        "expected_exit": 0,
+        "expected_stdout": null,
+        "expected_stderr": null,
+        "timeout": 30.0,
+        "env_allowlist": []
+      },
+      {
+        "name": "multiply",
+        "command": [
+          "python",
+          "-m",
+          "tinycalc",
+          "3",
+          "*",
+          "4"
+        ],
+        "stdin": null,
+        "expected_exit": 0,
+        "expected_stdout": null,
+        "expected_stderr": null,
+        "timeout": 30.0,
+        "env_allowlist": []
+      },
+      {
+        "name": "divide_float",
+        "command": [
+          "python",
+          "-m",
+          "tinycalc",
+          "10",
+          "/",
+          "4"
+        ],
+        "stdin": null,
+        "expected_exit": 0,
+        "expected_stdout": null,
+        "expected_stderr": null,
+        "timeout": 30.0,
+        "env_allowlist": []
+      },
+      {
+        "name": "precedence",
+        "command": [
+          "python",
+          "-m",
+          "tinycalc",
+          "2",
+          "+",
+          "3",
+          "*",
+          "4"
+        ],
+        "stdin": null,
+        "expected_exit": 0,
+        "expected_stdout": null,
+        "expected_stderr": null,
+        "timeout": 30.0,
+        "env_allowlist": []
+      },
+      {
+        "name": "stdin",
+        "command": [
+          "python",
+          "-m",
+          "tinycalc"
+        ],
+        "stdin": "5 * 6\n7 - 3\n",
+        "expected_exit": 0,
+        "expected_stdout": null,
+        "expected_stderr": null,
+        "timeout": 30.0,
+        "env_allowlist": []
+      },
+      {
+        "name": "error_invalid",
+        "command": [
+          "python",
+          "-m",
+          "tinycalc",
+          "invalid"
+        ],
+        "stdin": null,
+        "expected_exit": 1,
+        "expected_stdout": null,
+        "expected_stderr": null,
+        "timeout": 30.0,
+        "env_allowlist": []
+      },
+      {
+        "name": "error_div_zero",
+        "command": [
+          "python",
+          "-m",
+          "tinycalc",
+          "1",
+          "/",
+          "0"
+        ],
+        "stdin": null,
+        "expected_exit": 1,
+        "expected_stdout": null,
+        "expected_stderr": null,
+        "timeout": 30.0,
+        "env_allowlist": []
+      }
+    ],
+    "agent_session_id": null,
+    "agent_thread_id": "019fb682-cf78-7bf2-a98d-aadf9dce637e",
+    "agent_backend_version": "codex-cli 0.146.0",
+    "stage_outcomes": {
+      "preflight": {
+        "stage": "preflight",
+        "status": "completed",
+        "started_at": "2026-07-31T04:50:53+00:00",
+        "completed_at": "2026-07-31T04:50:53+00:00",
+        "exit_code": null,
+        "duration_seconds": 0.09,
+        "evidence": {
+          "backend_version": "codex-cli 0.146.0",
+          "backend_authed": true
+        },
+        "error": ""
+      },
+      "analyze": {
+        "stage": "analyze",
+        "status": "completed",
+        "started_at": "2026-07-31T04:50:53+00:00",
+        "completed_at": "2026-07-31T04:50:53+00:00",
+        "exit_code": null,
+        "duration_seconds": 0.004,
+        "evidence": {
+          "analysis_summary": "**tinycalc** (3 Python files, 216 lines) pure Python . Recommendation: **rust** (confidence: medium)."
+        },
+        "error": ""
+      },
+      "oracle_capture": {
+        "stage": "oracle_capture",
+        "status": "completed",
+        "started_at": "2026-07-31T04:50:53+00:00",
+        "completed_at": "2026-07-31T04:50:53+00:00",
+        "exit_code": null,
+        "duration_seconds": 0.119,
+        "evidence": {
+          "cases": [
+            {
+              "name": "basic_add",
+              "command": [
+                "python",
+                "-m",
+                "tinycalc",
+                "1",
+                "+",
+                "2"
+              ],
+              "exit_code": 0,
+              "stdout": "3\n",
+              "stderr": "",
+              "duration_seconds": 0.015309542002796661,
+              "timed_out": false,
+              "error": "",
+              "stdout_hash": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+              "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "name": "basic_subtract",
+              "command": [
+                "python",
+                "-m",
+                "tinycalc",
+                "10",
+                "-",
+                "4"
+              ],
+              "exit_code": 0,
+              "stdout": "6\n",
+              "stderr": "",
+              "duration_seconds": 0.014757083001313731,
+              "timed_out": false,
+              "error": "",
+              "stdout_hash": "06e9d52c1720fca412803e3b07c4b228ff113e303f4c7ab94665319d832bbfb7",
+              "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "name": "multiply",
+              "command": [
+                "python",
+                "-m",
+                "tinycalc",
+                "3",
+                "*",
+                "4"
+              ],
+              "exit_code": 0,
+              "stdout": "12\n",
+              "stderr": "",
+              "duration_seconds": 0.014800249999098014,
+              "timed_out": false,
+              "error": "",
+              "stdout_hash": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+              "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "name": "divide_float",
+              "command": [
+                "python",
+                "-m",
+                "tinycalc",
+                "10",
+                "/",
+                "4"
+              ],
+              "exit_code": 0,
+              "stdout": "2.5\n",
+              "stderr": "",
+              "duration_seconds": 0.014729499998793472,
+              "timed_out": false,
+              "error": "",
+              "stdout_hash": "686513ed91231892fbf0c4e72acee20264caa8538e8389157a942a808dba6531",
+              "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "name": "precedence",
+              "command": [
+                "python",
+                "-m",
+                "tinycalc",
+                "2",
+                "+",
+                "3",
+                "*",
+                "4"
+              ],
+              "exit_code": 0,
+              "stdout": "14\n",
+              "stderr": "",
+              "duration_seconds": 0.014715499994053971,
+              "timed_out": false,
+              "error": "",
+              "stdout_hash": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+              "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "name": "stdin",
+              "command": [
+                "python",
+                "-m",
+                "tinycalc"
+              ],
+              "exit_code": 0,
+              "stdout": "30\n4\n",
+              "stderr": "",
+              "duration_seconds": 0.01452337500086287,
+              "timed_out": false,
+              "error": "",
+              "stdout_hash": "088b9dbca3486d76439e9b0e28fb1e0cb5d85d6870780550a84906ce84dd0784",
+              "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "name": "error_invalid",
+              "command": [
+                "python",
+                "-m",
+                "tinycalc",
+                "invalid"
+              ],
+              "exit_code": 1,
+              "stdout": "Error: unexpected character: i\n",
+              "stderr": "",
+              "duration_seconds": 0.014855125002213754,
+              "timed_out": false,
+              "error": "",
+              "stdout_hash": "00be7e20210289122ba7c4f9a28721c5928777804d9c6c3c590e6f9293666fb3",
+              "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "name": "error_div_zero",
+              "command": [
+                "python",
+                "-m",
+                "tinycalc",
+                "1",
+                "/",
+                "0"
+              ],
+              "exit_code": 1,
+              "stdout": "Error: division by zero\n",
+              "stderr": "",
+              "duration_seconds": 0.014775665993511211,
+              "timed_out": false,
+              "error": "",
+              "stdout_hash": "9190f51d976f6cc54afc1587cb04f7865f0d14137d04c016cbaedd5a7df0a7a8",
+              "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          ],
+          "total_cases": 8,
+          "successful_captures": 8,
+          "failed_captures": 0,
+          "network_isolated": false,
+          "consent_given": true,
+          "environment": {
+            "cwd": "/Users/pilk/.hermes/kanban/boards/madoka-works/workspaces/t_0f01784a/examples/tinycalc",
+            "python": "3.11.15 (main, Jun 11 2026, 04:04:09) [Clang 22.1.3 ]",
+            "network_isolated": false
+          }
+        },
+        "error": ""
+      },
+      "plan": {
+        "stage": "plan",
+        "status": "completed",
+        "started_at": "2026-07-31T04:50:53+00:00",
+        "completed_at": "2026-07-31T04:50:53+00:00",
+        "exit_code": null,
+        "duration_seconds": 0.001,
+        "evidence": {
+          "prompt_path": "/tmp/pointer-e2e/.pointer/runs/20260731-045053-71a720/prompt-generate.md",
+          "prompt_chars": 15614
+        },
+        "error": ""
+      },
+      "generate": {
+        "stage": "generate",
+        "status": "completed",
+        "started_at": "2026-07-31T04:50:53+00:00",
+        "completed_at": "2026-07-31T04:52:53+00:00",
+        "exit_code": null,
+        "duration_seconds": 119.82,
+        "evidence": {
+          "session_id": null,
+          "last_message": "(no output from Codex)",
+          "duration": 119.8175371249963
+        },
+        "error": ""
+      },
+      "native_build": {
+        "stage": "native_build",
+        "status": "completed",
+        "started_at": "2026-07-31T04:52:53+00:00",
+        "completed_at": "2026-07-31T04:52:53+00:00",
+        "exit_code": null,
+        "duration_seconds": 0.137,
+        "evidence": {
+          "fmt": {
+            "command": [
+              "/Users/pilk/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+              "fmt",
+              "--check"
+            ],
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": "",
+            "duration_seconds": 0.049,
+            "timed_out": false,
+            "success": true
+          },
+          "clippy": {
+            "command": [
+              "/Users/pilk/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+              "clippy",
+              "--all-targets",
+              "--all-features",
+              "--",
+              "-D",
+              "warnings"
+            ],
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s\n",
+            "duration_seconds": 0.045,
+            "timed_out": false,
+            "success": true
+          },
+          "test": {
+            "command": [
+              "/Users/pilk/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--all-targets",
+              "--all-features"
+            ],
+            "exit_code": 0,
+            "stdout": "\nrunning 6 tests\ntest tests::rejects_unexpected_character ... ok\ntest tests::evaluates_oracle_expressions ... ok\ntest tests::formats_integer_results_like_python_source ... ok\ntest tests::tokenizes_numbers_and_operators ... ok\ntest tests::reports_python_matching_errors ... ok\ntest tests::stdin_runner_skips_blank_lines_and_continues_until_error ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+            "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running unittests src/main.rs (target/debug/deps/port_target-e2927f4fab8b6594)\n",
+            "duration_seconds": 0.033,
+            "timed_out": false,
+            "success": true
+          },
+          "build": {
+            "command": [
+              "/Users/pilk/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+              "build",
+              "--release"
+            ],
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": "    Finished `release` profile [optimized] target(s) in 0.00s\n",
+            "duration_seconds": 0.008,
+            "timed_out": false,
+            "success": true
+          },
+          "binary_path": "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+          "binary_hash": "64cab2d59687706076353d6b7579b1ef8a52f905bfc610b5aba1d9463e00c22f",
+          "all_passed": true,
+          "errors": []
+        },
+        "error": ""
+      },
+      "differential_verify": {
+        "stage": "differential_verify",
+        "status": "completed",
+        "started_at": "2026-07-31T04:52:53+00:00",
+        "completed_at": "2026-07-31T04:52:53+00:00",
+        "exit_code": null,
+        "duration_seconds": 0.136,
+        "evidence": {
+          "results": [
+            {
+              "case_name": "basic_add",
+              "rust_command": [
+                "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+                "1",
+                "+",
+                "2"
+              ],
+              "duration_seconds": 0.118,
+              "passed": true,
+              "comparisons": {
+                "exit_code": {
+                  "expected": 0,
+                  "actual": 0,
+                  "match": true
+                },
+                "stdout": {
+                  "expected_hash": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+                  "actual_hash": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+                  "match": true
+                }
+              }
+            },
+            {
+              "case_name": "basic_subtract",
+              "rust_command": [
+                "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+                "10",
+                "-",
+                "4"
+              ],
+              "duration_seconds": 0.003,
+              "passed": true,
+              "comparisons": {
+                "exit_code": {
+                  "expected": 0,
+                  "actual": 0,
+                  "match": true
+                },
+                "stdout": {
+                  "expected_hash": "06e9d52c1720fca412803e3b07c4b228ff113e303f4c7ab94665319d832bbfb7",
+                  "actual_hash": "06e9d52c1720fca412803e3b07c4b228ff113e303f4c7ab94665319d832bbfb7",
+                  "match": true
+                }
+              }
+            },
+            {
+              "case_name": "multiply",
+              "rust_command": [
+                "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+                "3",
+                "*",
+                "4"
+              ],
+              "duration_seconds": 0.003,
+              "passed": true,
+              "comparisons": {
+                "exit_code": {
+                  "expected": 0,
+                  "actual": 0,
+                  "match": true
+                },
+                "stdout": {
+                  "expected_hash": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+                  "actual_hash": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+                  "match": true
+                }
+              }
+            },
+            {
+              "case_name": "divide_float",
+              "rust_command": [
+                "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+                "10",
+                "/",
+                "4"
+              ],
+              "duration_seconds": 0.003,
+              "passed": true,
+              "comparisons": {
+                "exit_code": {
+                  "expected": 0,
+                  "actual": 0,
+                  "match": true
+                },
+                "stdout": {
+                  "expected_hash": "686513ed91231892fbf0c4e72acee20264caa8538e8389157a942a808dba6531",
+                  "actual_hash": "686513ed91231892fbf0c4e72acee20264caa8538e8389157a942a808dba6531",
+                  "match": true
+                }
+              }
+            },
+            {
+              "case_name": "precedence",
+              "rust_command": [
+                "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+                "2",
+                "+",
+                "3",
+                "*",
+                "4"
+              ],
+              "duration_seconds": 0.002,
+              "passed": true,
+              "comparisons": {
+                "exit_code": {
+                  "expected": 0,
+                  "actual": 0,
+                  "match": true
+                },
+                "stdout": {
+                  "expected_hash": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+                  "actual_hash": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+                  "match": true
+                }
+              }
+            },
+            {
+              "case_name": "stdin",
+              "rust_command": [
+                "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target"
+              ],
+              "duration_seconds": 0.002,
+              "passed": true,
+              "comparisons": {
+                "exit_code": {
+                  "expected": 0,
+                  "actual": 0,
+                  "match": true
+                },
+                "stdout": {
+                  "expected_hash": "088b9dbca3486d76439e9b0e28fb1e0cb5d85d6870780550a84906ce84dd0784",
+                  "actual_hash": "088b9dbca3486d76439e9b0e28fb1e0cb5d85d6870780550a84906ce84dd0784",
+                  "match": true
+                }
+              }
+            },
+            {
+              "case_name": "error_invalid",
+              "rust_command": [
+                "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+                "invalid"
+              ],
+              "duration_seconds": 0.002,
+              "passed": true,
+              "comparisons": {
+                "exit_code": {
+                  "expected": 1,
+                  "actual": 1,
+                  "match": true
+                },
+                "stdout": {
+                  "expected_hash": "00be7e20210289122ba7c4f9a28721c5928777804d9c6c3c590e6f9293666fb3",
+                  "actual_hash": "00be7e20210289122ba7c4f9a28721c5928777804d9c6c3c590e6f9293666fb3",
+                  "match": true
+                }
+              }
+            },
+            {
+              "case_name": "error_div_zero",
+              "rust_command": [
+                "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+                "1",
+                "/",
+                "0"
+              ],
+              "duration_seconds": 0.002,
+              "passed": true,
+              "comparisons": {
+                "exit_code": {
+                  "expected": 1,
+                  "actual": 1,
+                  "match": true
+                },
+                "stdout": {
+                  "expected_hash": "9190f51d976f6cc54afc1587cb04f7865f0d14137d04c016cbaedd5a7df0a7a8",
+                  "actual_hash": "9190f51d976f6cc54afc1587cb04f7865f0d14137d04c016cbaedd5a7df0a7a8",
+                  "match": true
+                }
+              }
+            }
+          ],
+          "mismatches": [],
+          "total_cases": 8,
+          "passed": 8,
+          "failed": 0,
+          "all_passed": true
+        },
+        "error": ""
+      },
+      "repair": {
+        "stage": "repair",
+        "status": "completed",
+        "started_at": "2026-07-31T04:52:53+00:00",
+        "completed_at": "2026-07-31T04:52:53+00:00",
+        "exit_code": null,
+        "duration_seconds": 0.0,
+        "evidence": {
+          "repairs_done": 0,
+          "needed": false
+        },
+        "error": ""
+      }
+    },
+    "repair_count": 0,
+    "repair_history": [],
+    "native_binary_path": "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+    "native_artifact_hash": "64cab2d59687706076353d6b7579b1ef8a52f905bfc610b5aba1d9463e00c22f",
+    "verification_results": [
+      {
+        "case_name": "basic_add",
+        "rust_command": [
+          "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+          "1",
+          "+",
+          "2"
+        ],
+        "duration_seconds": 0.118,
+        "passed": true,
+        "comparisons": {
+          "exit_code": {
+            "expected": 0,
+            "actual": 0,
+            "match": true
+          },
+          "stdout": {
+            "expected_hash": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+            "actual_hash": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+            "match": true
+          }
+        }
+      },
+      {
+        "case_name": "basic_subtract",
+        "rust_command": [
+          "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+          "10",
+          "-",
+          "4"
+        ],
+        "duration_seconds": 0.003,
+        "passed": true,
+        "comparisons": {
+          "exit_code": {
+            "expected": 0,
+            "actual": 0,
+            "match": true
+          },
+          "stdout": {
+            "expected_hash": "06e9d52c1720fca412803e3b07c4b228ff113e303f4c7ab94665319d832bbfb7",
+            "actual_hash": "06e9d52c1720fca412803e3b07c4b228ff113e303f4c7ab94665319d832bbfb7",
+            "match": true
+          }
+        }
+      },
+      {
+        "case_name": "multiply",
+        "rust_command": [
+          "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+          "3",
+          "*",
+          "4"
+        ],
+        "duration_seconds": 0.003,
+        "passed": true,
+        "comparisons": {
+          "exit_code": {
+            "expected": 0,
+            "actual": 0,
+            "match": true
+          },
+          "stdout": {
+            "expected_hash": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+            "actual_hash": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+            "match": true
+          }
+        }
+      },
+      {
+        "case_name": "divide_float",
+        "rust_command": [
+          "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+          "10",
+          "/",
+          "4"
+        ],
+        "duration_seconds": 0.003,
+        "passed": true,
+        "comparisons": {
+          "exit_code": {
+            "expected": 0,
+            "actual": 0,
+            "match": true
+          },
+          "stdout": {
+            "expected_hash": "686513ed91231892fbf0c4e72acee20264caa8538e8389157a942a808dba6531",
+            "actual_hash": "686513ed91231892fbf0c4e72acee20264caa8538e8389157a942a808dba6531",
+            "match": true
+          }
+        }
+      },
+      {
+        "case_name": "precedence",
+        "rust_command": [
+          "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+          "2",
+          "+",
+          "3",
+          "*",
+          "4"
+        ],
+        "duration_seconds": 0.002,
+        "passed": true,
+        "comparisons": {
+          "exit_code": {
+            "expected": 0,
+            "actual": 0,
+            "match": true
+          },
+          "stdout": {
+            "expected_hash": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+            "actual_hash": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+            "match": true
+          }
+        }
+      },
+      {
+        "case_name": "stdin",
+        "rust_command": [
+          "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target"
+        ],
+        "duration_seconds": 0.002,
+        "passed": true,
+        "comparisons": {
+          "exit_code": {
+            "expected": 0,
+            "actual": 0,
+            "match": true
+          },
+          "stdout": {
+            "expected_hash": "088b9dbca3486d76439e9b0e28fb1e0cb5d85d6870780550a84906ce84dd0784",
+            "actual_hash": "088b9dbca3486d76439e9b0e28fb1e0cb5d85d6870780550a84906ce84dd0784",
+            "match": true
+          }
+        }
+      },
+      {
+        "case_name": "error_invalid",
+        "rust_command": [
+          "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+          "invalid"
+        ],
+        "duration_seconds": 0.002,
+        "passed": true,
+        "comparisons": {
+          "exit_code": {
+            "expected": 1,
+            "actual": 1,
+            "match": true
+          },
+          "stdout": {
+            "expected_hash": "00be7e20210289122ba7c4f9a28721c5928777804d9c6c3c590e6f9293666fb3",
+            "actual_hash": "00be7e20210289122ba7c4f9a28721c5928777804d9c6c3c590e6f9293666fb3",
+            "match": true
+          }
+        }
+      },
+      {
+        "case_name": "error_div_zero",
+        "rust_command": [
+          "/tmp/pointer-e2e/.pointer/output/20260731-045053-71a720/target/release/port-target",
+          "1",
+          "/",
+          "0"
+        ],
+        "duration_seconds": 0.002,
+        "passed": true,
+        "comparisons": {
+          "exit_code": {
+            "expected": 1,
+            "actual": 1,
+            "match": true
+          },
+          "stdout": {
+            "expected_hash": "9190f51d976f6cc54afc1587cb04f7865f0d14137d04c016cbaedd5a7df0a7a8",
+            "actual_hash": "9190f51d976f6cc54afc1587cb04f7865f0d14137d04c016cbaedd5a7df0a7a8",
+            "match": true
+          }
+        }
+      }
+    ],
+    "all_cases_passed": true,
+    "consent_given": true,
+    "network_isolated": false,
+    "pointer_version": "0.2.0",
+    "warnings": [
+      "Generation prompt saved to /tmp/pointer-e2e/.pointer/runs/20260731-045053-71a720/prompt-generate.md"
+    ],
+    "errors": []
+  }
+}

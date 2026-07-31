@@ -96,18 +96,18 @@ class TestCodexBackend:
     def test_build_exec_argv_no_dangerous_flag(self, tmp_path):
         """Ensure the dangerous bypass flag is never added to argv."""
         backend = CodexBackend(codex_bin="/usr/local/bin/codex")
-        argv = backend._build_exec_argv("test prompt", tmp_path)
+        argv = backend._build_exec_argv(tmp_path)
         assert "--dangerously-bypass-approvals-and-sandbox" not in argv
         assert "--sandbox=workspace-write" in argv
 
     def test_build_exec_argv_includes_json(self, tmp_path):
         backend = CodexBackend(codex_bin="/usr/local/bin/codex")
-        argv = backend._build_exec_argv("test prompt", tmp_path)
+        argv = backend._build_exec_argv(tmp_path)
         assert "--json" in argv
 
     def test_build_exec_argv_resume(self, tmp_path):
         backend = CodexBackend(codex_bin="/usr/local/bin/codex")
-        argv = backend._build_exec_argv("test prompt", tmp_path, session_id="session-123")
+        argv = backend._build_exec_argv(tmp_path, session_id="session-123")
         assert "resume" in argv
         assert "session-123" in argv
 
