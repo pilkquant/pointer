@@ -68,13 +68,49 @@ class NativeBuildResult:
 
 
 def discover_cargo() -> str | None:
-    """Discover the cargo binary."""
-    return shutil.which("cargo")
+    """Discover the cargo binary.
+
+    Checks PATH first, then common installation locations.
+    """
+    cargo = shutil.which("cargo")
+    if cargo:
+        return cargo
+
+    # Check common installation locations
+    home = Path.home()
+    common_paths = [
+        home / ".cargo" / "bin" / "cargo",
+        Path("/usr/local/bin/cargo"),
+        Path("/opt/homebrew/bin/cargo"),
+        Path("/opt/homebrew/opt/rustup/bin/cargo"),
+        Path("/usr/bin/cargo"),
+    ]
+    for p in common_paths:
+        if p.exists() and p.is_file():
+            return str(p)
+
+    return None
 
 
 def discover_rustc() -> str | None:
     """Discover rustc binary."""
-    return shutil.which("rustc")
+    rustc = shutil.which("rustc")
+    if rustc:
+        return rustc
+
+    home = Path.home()
+    common_paths = [
+        home / ".cargo" / "bin" / "rustc",
+        Path("/usr/local/bin/rustc"),
+        Path("/opt/homebrew/bin/rustc"),
+        Path("/opt/homebrew/opt/rustup/bin/rustc"),
+        Path("/usr/bin/rustc"),
+    ]
+    for p in common_paths:
+        if p.exists() and p.is_file():
+            return str(p)
+
+    return None
 
 
 def _run_command(
@@ -85,6 +121,17 @@ def _run_command(
     """Run a command with timeout and capture output."""
     start = time.monotonic()
     clean_env = sanitize_env(dict(__import__("os").environ))
+
+    # Ensure the directory containing cargo/rustc is in PATH for subprocess
+    # (cargo subcommands like rustc, rustfmt, clippy need to be found)
+    import os as _os
+
+    cargo_path = discover_cargo()
+    if cargo_path:
+        cargo_dir = str(Path(cargo_path).parent)
+        existing_path = clean_env.get("PATH", "")
+        if cargo_dir not in existing_path:
+            clean_env["PATH"] = cargo_dir + _os.pathsep + existing_path
 
     try:
         proc = subprocess.run(
@@ -131,14 +178,28 @@ def check_cargo_available() -> bool:
 
 def check_rust_available() -> bool:
     """Check if the full Rust toolchain is available."""
-    return all(
-        [
-            discover_cargo() is not None,
-            discover_rustc() is not None,
-            shutil.which("cargo-clippy") is not None or shutil.which("clippy-driver") is not None,
-            shutil.which("cargo-fmt") is not None or shutil.which("rustfmt") is not None,
-        ]
-    )
+    cargo = discover_cargo()
+    rustc = discover_rustc()
+    if not cargo or not rustc:
+        return False
+
+    # Check for clippy and rustfmt in PATH or common locations
+    cargo_dir = Path(cargo).parent
+    clippy = shutil.which("cargo-clippy") or shutil.which("clippy-driver")
+    rustfmt = shutil.which("cargo-fmt") or shutil.which("rustfmt")
+    if not clippy:
+        for name in ("cargo-clippy", "clippy-driver"):
+            p = cargo_dir / name
+            if p.exists():
+                clippy = str(p)
+                break
+    if not rustfmt:
+        for name in ("cargo-fmt", "rustfmt"):
+            p = cargo_dir / name
+            if p.exists():
+                rustfmt = str(p)
+                break
+    return bool(clippy and rustfmt)
 
 
 def cargo_fmt_check(workspace: Path, timeout: float = 60.0) -> CommandResult:
