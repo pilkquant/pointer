@@ -29,7 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="pointer",
         description=(
             "Pointer — Point it at Python. Get an evidence-backed path to native.\n\n"
-            "Static portability analysis for Python → Rust/C++ migration.\n"
+            "Static portability analysis for Python -> Rust/C++ migration.\n"
             "Pointer never imports or executes code from the target repository."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -106,6 +106,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     """Main entry point. Returns exit code."""
+    # Ensure UTF-8 output on all platforms (Windows defaults to cp1252)
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8")
+            except (ValueError, OSError):
+                pass
+
     parser = build_parser()
 
     args = parser.parse_args(argv)
