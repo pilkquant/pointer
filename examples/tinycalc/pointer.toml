@@ -1,0 +1,50 @@
+# Pointer porting configuration for tinycalc fixture
+# This defines the oracle specification for differential verification.
+
+[port]
+target = "rust"
+
+[oracle.normalization]
+strip_trailing_whitespace = true
+normalize_newlines = true
+
+[[oracle.cases]]
+name = "basic_add"
+command = ["python", "-m", "tinycalc", "1", "+", "2"]
+expected_exit = 0
+
+[[oracle.cases]]
+name = "basic_subtract"
+command = ["python", "-m", "tinycalc", "10", "-", "4"]
+expected_exit = 0
+
+[[oracle.cases]]
+name = "multiply"
+command = ["python", "-m", "tinycalc", "3", "*", "4"]
+expected_exit = 0
+
+[[oracle.cases]]
+name = "divide_float"
+command = ["python", "-m", "tinycalc", "10", "/", "4"]
+expected_exit = 0
+
+[[oracle.cases]]
+name = "precedence"
+command = ["python", "-m", "tinycalc", "2", "+", "3", "*", "4"]
+expected_exit = 0
+
+[[oracle.cases]]
+name = "stdin"
+command = ["python", "-m", "tinycalc"]
+stdin = "5 * 6\n7 - 3\n"
+expected_exit = 0
+
+[[oracle.cases]]
+name = "error_invalid"
+command = ["python", "-m", "tinycalc", "invalid"]
+expected_exit = 1
+
+[[oracle.cases]]
+name = "error_div_zero"
+command = ["python", "-m", "tinycalc", "1", "/", "0"]
+expected_exit = 1

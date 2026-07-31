@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tinycalc"
+version = "0.1.0"
+description = "Tiny arithmetic calculator — Pointer porting fixture"
+requires-python = ">=3.11"
+
+[project.scripts]
+tinycalc = "tinycalc:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tinycalc"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

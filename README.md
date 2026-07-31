@@ -2,19 +2,34 @@
 
 **Point it at Python. Get an evidence-backed path to native.**
 
-Pointer is a static portability-analysis CLI that examines a Python repository and produces a detailed, evidence-backed report guiding your decision to port to Rust or C++ (or stay in Python). It never imports or executes your code — every finding comes from static filesystem discovery and AST analysis.
+Pointer is a static portability-analysis CLI **and** Codex-backed Python→Rust porting workflow. v0.1 analyzes any Python repository and produces evidence-backed portability reports. v0.2 adds one-command porting: `pointer port ./my-project --target rust --agent codex`.
 
-## Why Pointer?
+## What's new in v0.2.0 — The Final Fantasy
 
-Before committing to a native port, you need answers:
+```bash
+pointer port ./python-repo --target rust --agent codex
+```
 
-- Is this codebase even portable, or is it too dynamic?
-- What dependencies will block me, and which have native equivalents?
-- Where are the natural module boundaries for incremental porting?
-- Rust or C++ — which is the better fit given *this* codebase's signals?
-- Do I have enough test coverage to verify a port against Python as the oracle?
+One command initiates: analysis → oracle capture → plan → Codex generation → Rust build/test → behavioral comparison → bounded repair → evidence report. The command either returns a **verified** native result or fails honestly with exact blockers and resumable state.
 
-Pointer answers all of these with **observed evidence, transparent scoring, and explicit confidence levels**. It never fabricates findings it hasn't detected, and it labels unknowns as unknowns.
+Key additions:
+
+- **Durable run state machine** — every run is persisted under `.pointer/runs/<run-id>/` with atomic state writes. Interrupted runs resume without repeating completed work.
+- **Replaceable agent backend** — `AgentBackend` protocol with `CodexBackend` (real CLI) and `FakeBackend` (deterministic, no network). CI uses the fake backend — no model spending required.
+- **Executable oracle** — `pointer.toml` defines deterministic test cases. Python outputs are captured *before* generation, then compared against Rust outputs after build.
+- **Differential verification** — every oracle case (exit code, stdout, stderr) is compared after the Rust port builds. No false `verified` verdicts.
+- **Bounded repair** — on build/test/behavior failure, structured diagnostics are fed back to Codex via resume. Default budget: 3 attempts. Never loops forever.
+- **Evidence reports** — every run produces `report.md` and `evidence.json` with full stage timeline, command outputs, binary hash, verdict, and disclosures.
+
+### Verdict vocabulary
+
+| Verdict | Meaning |
+|---------|---------|
+| `verified` | Rust builds, passes fmt/clippy/test, and every oracle case matches |
+| `generated_unverified` | Rust generated and may build, but verification incomplete |
+| `blocked` | Missing capability, consent, or prerequisites |
+| `failed` | Pipeline failed after exhausting repair budget |
+| `cancelled` | Cancelled by user |
 
 ## Install
 
@@ -22,85 +37,100 @@ Pointer answers all of these with **observed evidence, transparent scoring, and 
 pip install pointer-cli
 ```
 
-Pointer has **zero runtime dependencies** — it uses only the Python standard library. No transitive packages to audit, no install conflicts, instant setup.
+Pointer has **zero runtime dependencies** — it uses only the Python standard library. Requires Python 3.11+.
 
-Requires Python 3.11+.
+For the `port` command you also need:
 
-## 60-second example
+- **Rust toolchain** (cargo, rustc, clippy, rustfmt) — `rustup install stable`
+- **OpenAI Codex CLI** — install and authenticate separately. Set `POINTER_CODEX_BIN` if not in PATH.
+
+## Quick start
+
+### Static analysis (v0.1)
 
 ```bash
 # Analyze any Python repository
 pointer analyze ./my-project
 
-# Compare Rust vs C++ suitability (default)
-pointer analyze ./my-project --target compare
-
-# Get a Rust-focused assessment
-pointer analyze ./my-project --target rust
-
-# Reports land in ./pointer-report/ by default
+# Reports land in ./pointer-report/
 ls pointer-report/
 # report.md   report.json
 ```
 
-Output:
+### Porting (v0.2)
 
-```
-Pointer 0.1.0 — analyzing /home/you/my-project
-Target: compare
+```bash
+# Port with real Codex (requires authenticated Codex CLI)
+pointer port ./my-project --target rust --agent codex --yes --allow-source-execution
 
-✓ Analysis complete.
-  Markdown: pointer-report/report.md
-  JSON:     pointer-report/report.json
+# Check status of all runs
+pointer status
 
-**my-project** (42 Python files, 3,200 lines) pure Python . Recommendation: **hybrid** (confidence: medium).
-```
+# Resume an interrupted run
+pointer continue <run-id>
 
-## What the report tells you
-
-Every report answers nine questions across both Markdown (for humans) and JSON (for tooling):
-
-1. **Repository profile** — project name, version, Python requirement, file/line counts, build system
-2. **Packaging & layout** — build backends (setuptools, hatch, poetry, maturin...), lockfiles (uv, poetry, pip), source roots, entry points, declared dependencies
-3. **Native extension status** — is this pure Python or already partly native? Detects `.so`/`.pyd`/`.dylib` files, wheel tags, native build backends, and binding tool references (PyO3, pybind11, Cython, CFFI, ctypes, nanobind)
-4. **Imports & dependencies** — full import inventory classified into stdlib, external, and local; plus a curated dependency portability disposition table
-5. **Dynamic language blockers** — eval, exec, metaclasses, monkeypatching, dynamic imports, `__getattr__` — the constructs that make static porting hardest
-6. **Test & oracle evidence** — test framework detection (pytest, unittest, hypothesis), fixture/conftest presence, and an oracle-readiness assessment for future differential verification
-7. **Migration seams & ordering** — recommended module boundaries for incremental porting, prioritized by dependency concentration and blocker presence
-8. **Target recommendation** — transparent Rust-vs-C++-vs-hybrid-vs-stay-Python scoring with every factor exposed; allows an inconclusive result
-9. **Evidence taxonomy** — every finding labeled as observed, inferred, or unknown with confidence levels
-
-### Sample report excerpt
-
-```markdown
-## 8. Target Recommendation
-
-### Recommendation: 🦀 Rust (confidence: 🟢 high)
-
-Rust target assessment:
-Favorable: Small codebase (420 Python lines); No significant dynamic language blockers.
-Rust offers structural memory safety (borrow checker), unified build system (cargo),
-and mature Python bindings (PyO3/maturin).
-
-| Factor | Base | Rust adj. | C++ adj. | Reason |
-|--------|------|----------|----------|--------|
-| codebase_size | +1 | +1 | +1 | Small codebase (420 Python lines) |
-| dynamic_constructs | +1 | +1 | +1 | No significant dynamic blockers detected |
-| type_coverage | +1 | +1 | 0 | High type annotation coverage (85%) |
-| test_oracle | +1 | +1 | +1 | Strong test suite |
+# Re-verify a completed run
+pointer verify <run-id>
 ```
 
-## Safety model
+### Using the fake backend (for testing)
 
-Pointer is designed to analyze untrusted repositories safely:
+```bash
+# Use deterministic fake backend — no Codex, no network
+pointer port ./my-project --target rust --agent fake --yes
+```
 
-- **No code execution.** Target code is never imported, never executed, never added to `sys.path`. All analysis uses stdlib `ast.parse()` on file contents.
-- **No network access.** Zero outbound calls. No telemetry, no update checks, no API keys.
-- **Symlink-safe traversal.** Symlinks pointing outside the repository root are never followed. Files are resolved and checked against the root boundary.
-- **Size limits.** Oversized files are skipped gracefully.
-- **Graceful degradation.** Syntax errors, missing manifests, namespace packages, and partial repositories are handled without crashing.
+## Oracle configuration
 
-See the [security tests](tests/test_security.py) for verifiable proof of these guarantees.
+Create a `pointer.toml` in your project root to define executable oracle cases:
+
+```toml
+[port]
+target = "rust"
+
+[[oracle.cases]]
+name = "basic"
+command = ["python", "-m", "myapp", "1 + 2"]
+expected_exit = 0
+
+[[oracle.cases]]
+name = "stdin"
+command = ["python", "-m", "myapp"]
+stdin = "3 * 4\n"
+expected_exit = 0
+
+[[oracle.cases]]
+name = "error_path"
+command = ["python", "-m", "myapp", "invalid"]
+expected_exit = 1
+
+[oracle.normalization]
+strip_trailing_whitespace = true
+normalize_newlines = true
+```
+
+Without `pointer.toml`, the port proceeds but cannot reach `verified` — it ends `generated_unverified`.
+
+## Security model
+
+Pointer is designed to handle untrusted repositories safely:
+
+**Static analysis (`pointer analyze`):**
+- No code execution. No network access. No telemetry.
+- Symlink-safe traversal. Files outside the repository root are never followed.
+- All analysis uses stdlib `ast.parse()` on file contents.
+
+**Porting (`pointer port`):**
+- **Source execution is a separate security boundary.** `pointer port` contacts the agent by default, but does NOT execute your Python source unless you pass `--allow-source-execution`.
+- **Codex runs in sandbox.** The agent operates only inside an isolated output workspace with `--sandbox workspace-write`. Never uses `--dangerously-bypass-approvals-and-sandbox`.
+- **Secret redaction.** Likely secrets (API keys, tokens, passwords) are redacted from all logs and reports.
+- **Sanitized environment.** Subprocess execution uses a documented env allowlist — no secret env vars leaked.
+- **No symlinks followed outside allowed roots.**
+- **Size limits** on all outputs and logs.
+- **Path validation** before any destructive operation.
+- **Source repository is never modified.**
+
+See the [security tests](tests/test_port_security.py) for verifiable proof.
 
 ## CLI reference
 
@@ -108,7 +138,33 @@ See the [security tests](tests/test_security.py) for verifiable proof of these g
 pointer --help
 pointer --version
 pointer analyze PATH [options]
+pointer port PATH [options]
+pointer status [RUN_ID]
+pointer continue RUN_ID
+pointer verify RUN_ID
 pointer doctor
+```
+
+### `pointer port`
+
+```
+pointer port ./my-project --target rust --agent codex [options]
+
+Options:
+  --target {rust}                 Target language (default: rust)
+  --agent {codex,fake}            Agent backend (default: codex)
+  --yes                           Auto-confirm (does NOT grant source execution)
+  --allow-source-execution        Allow running Python source as oracle
+  --max-repairs N                 Max repair attempts (default: 3)
+  --state-root DIR                Override state directory
+```
+
+### `pointer status`
+
+```
+pointer status              # List all runs
+pointer status <run-id>     # Show details for a specific run
+pointer status --json       # JSON output
 ```
 
 ### `pointer analyze`
@@ -122,42 +178,68 @@ Options:
   --exclude GLOB               Additional exclude pattern (repeatable)
 ```
 
-Exit codes: `0` success, `2` invalid path/arguments, `1` internal failure.
+## Architecture
 
-### `pointer doctor`
+### Porting pipeline stages
 
-Reports Pointer version, Python version, platform, and the availability of optional external tools (cargo, cmake, etc.). External tools are never required for static analysis.
+```
+preflight → analyze → oracle_capture → plan → generate →
+native_build → differential_verify → repair → final_verify → complete
+```
 
-## Exclusion defaults
+Each stage is:
+- **Durable** — persisted to `state.json` atomically
+- **Resumable** — completed stages are skipped on resume
+- **Evidence-backed** — command outputs, durations, and artifacts recorded
 
-Pointer automatically excludes: `.git`, `__pycache__`, `*.egg-info`, `*.dist-info`, `.tox`, `.nox`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `node_modules`, `.venv`, `venv`, `env`, `.env`, `build`, `dist`, `.eggs`, `site-packages`, `.idea`, `.vscode`.
+### Agent backend protocol
 
-Add custom excludes with `--exclude`.
+The `AgentBackend` protocol decouples Pointer from any specific AI agent:
+
+```python
+class AgentBackend(Protocol):
+    def probe(self) -> BackendCapabilities: ...
+    def generate(self, prompt, workspace, *, timeout) -> AgentResult: ...
+    def repair(self, prompt, workspace, *, session_id, timeout) -> AgentResult: ...
+```
+
+- **CodexBackend** — invokes `codex exec --json --sandbox=workspace-write` inside the isolated workspace
+- **FakeBackend** — writes real compilable Rust for testing without network
+
+### Example fixture
+
+See [`examples/tinycalc/`](examples/tinycalc/) — a minimal arithmetic calculator with:
+- A CLI accepting arguments and stdin
+- Deterministic stdout and exit behavior
+- Unit tests
+- 8 oracle cases including error paths
+
+## What the report tells you
+
+Every analysis report answers nine questions across Markdown and JSON:
+
+1. **Repository profile** — project name, version, Python requirement, file/line counts
+2. **Packaging & layout** — build backends, lockfiles, source roots, entry points
+3. **Native extension status** — pure Python or already partly native?
+4. **Imports & dependencies** — full import inventory with portability dispositions
+5. **Dynamic language blockers** — eval, exec, metaclasses, monkeypatching
+6. **Test & oracle evidence** — test framework detection, oracle-readiness assessment
+7. **Migration seams** — recommended module boundaries for incremental porting
+8. **Target recommendation** — transparent Rust-vs-C++ scoring
+9. **Evidence taxonomy** — every finding labeled observed, inferred, or unknown
 
 ## Limitations
 
-Pointer 0.1 is a **static** analyzer. It does not:
-
-- Port or translate code
-- Execute the target repository or its tests
-- Call an LLM or any network service
-- Measure runtime performance or coverage
-- Generate build files or scaffolding
-
-These are planned for future versions (see [Roadmap](#roadmap)).
-
-Dynamic language constructs (eval, monkeypatching, metaclasses) are detected heuristically. Pointer flags them as **signals** — it cannot fully resolve their runtime behavior without execution, which is out of scope for 0.1.
-
-## Roadmap
-
-- **0.1** (this release): Static portability analysis with Markdown + JSON reports
-- **Future**: Incremental porting orchestration, runtime coverage analysis, golden-master oracle capture, differential testing harness, PyO3/nanobind project scaffolding
-
-Pointer 0.1 is the trustworthy foundation. Later versions build on its static analysis to orchestrate actual porting work — always with Python as the executable oracle.
+- Dynamic Python behavior (reflection, monkeypatching) cannot be fully captured
+- Nondeterministic outputs cannot be verified
+- Network-dependent behavior may differ between Python and Rust
+- Database, GUI, and distributed system ports are out of scope
+- Native C/Fortran dependencies require manual handling
+- Pointer does not port to C++ (v0.2 — Rust only)
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Pointer is developed test-first with 97 unit, integration, security, and determinism tests.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Pointer is developed test-first with 221+ tests covering static analysis, porting, security, determinism, and integration.
 
 ## License
 

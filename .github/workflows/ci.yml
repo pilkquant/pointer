@@ -32,7 +32,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -42,7 +42,29 @@ jobs:
         run: pip install -e .
       - name: Install test dependencies
         run: pip install pytest==9.1.1
-      - name: Run tests
+      - name: Run tests (excluding Rust-dependent integration tests)
+        run: python -m pytest -q --ignore=tests/test_port_integration.py
+
+  test-porting:
+    name: Porting tests with Rust (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: Install package (editable)
+        run: pip install -e .
+      - name: Install test dependencies
+        run: pip install pytest==9.1.1
+      - name: Run all tests including porting integration
         run: python -m pytest -q
 
   build-and-smoke:
@@ -104,4 +126,12 @@ jobs:
           else
             /tmp/clean-venv/bin/pointer analyze tests/fixtures/pure_python --output /tmp/pointer-smoke
             ls /tmp/pointer-smoke/report.md /tmp/pointer-smoke/report.json
+          fi
+      - name: Smoke test port --help
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            /tmp/clean-venv/Scripts/pointer port --help
+          else
+            /tmp/clean-venv/bin/pointer port --help
           fi

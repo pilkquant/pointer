@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pointer-cli"
-version = "0.1.0"
-description = "Point it at Python. Get an evidence-backed path to native Rust or C++."
+version = "0.2.0"
+description = "Point it at Python. Get an evidence-backed path to native Rust — static analysis + Codex-backed porting."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.11"
