@@ -1,4 +1,5 @@
 """Tests for tinycalc."""
+
 import pytest
 from tinycalc import evaluate, format_result, tokenize
 

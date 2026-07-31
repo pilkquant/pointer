@@ -54,7 +54,7 @@ def evaluate(expr: str) -> float:
             try:
                 values.append(float(tok))
             except ValueError:
-                raise ValueError(f"invalid number: {tok}")
+                raise ValueError(f"invalid number: {tok}") from None
             expect_value = False
         else:
             if tok not in ("+", "-", "*", "/"):

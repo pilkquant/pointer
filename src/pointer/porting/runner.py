@@ -158,6 +158,16 @@ class PortRunner:
 
             state = self.state  # Refresh
 
+        # If we hit a terminal failure/blocked state, write evidence reports
+        # so the user always gets a report even on early failures.
+        assert state is not None
+        if state.stage != Stage.COMPLETE.value and is_terminal(state):
+            from .evidence import write_json_report, write_markdown_report
+
+            run_dir = Path(state.run_dir)
+            write_json_report(state, run_dir)
+            write_markdown_report(state, run_dir)
+
         return self._build_result()
 
     # --- Stage implementations ---
@@ -546,6 +556,16 @@ class PortRunner:
             duration=time.monotonic() - start,
             evidence={"repairs_done": state.repair_count},
         )
+
+        # After recording (which advanced stage to final_verify), check
+        # whether another repair cycle is needed and budget remains.
+        # If so, loop back to native_build for another build→verify→repair cycle.
+        still_needs_repair = (self.build_result and not self.build_result.all_passed) or (
+            self.verify_result and not self.verify_result.all_passed
+        )
+        if still_needs_repair and state.repair_count < state.max_repairs:
+            state.stage = Stage.NATIVE_BUILD.value
+            save_state(state)
 
     def _stage_final_verify(self) -> None:
         """Stage 9: final verification and verdict."""

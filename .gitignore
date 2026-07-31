@@ -35,3 +35,4 @@ Thumbs.db
 
 # Pointer's own output
 pointer-report/
+.pointer/

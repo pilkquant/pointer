@@ -1,5 +1,7 @@
 """Entry point for python -m tinycalc."""
-from tinycalc import main
+
 import sys
+
+from tinycalc import main
 
 sys.exit(main())
