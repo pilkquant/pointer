@@ -5,6 +5,16 @@ All notable changes to Pointer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-08-02
+
+### Fixed
+
+- Discover `cargo` and `rustc` in common rustup and platform-specific locations when they are not present on `PATH`.
+- Preserve failure evidence from native build and verification stages so blocked runs remain diagnosable.
+- Prevent repair-loop cycling and keep bounded repair attempts progressing through fresh diagnostics.
+- Correct the bundled `tinycalc` fixture packaging and test imports.
+- Ignore generated Pointer run state and report artifacts in Git.
+
 ## [0.2.0] - 2026-07-31
 
 ### Added — The Final Fantasy: Codex-backed Python→Rust porting
@@ -64,4 +74,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI on Linux, macOS, and Windows across Python 3.11–3.14.
 
 [0.2.0]: https://github.com/pilkquant/pointer/releases/tag/v0.2.0
+[0.2.1]: https://github.com/pilkquant/pointer/compare/v0.2.0...v0.2.1
 [0.1.0]: https://github.com/pilkquant/pointer/releases/tag/v0.1.0
