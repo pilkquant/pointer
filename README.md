@@ -4,6 +4,8 @@
 
 Pointer is a static portability-analysis CLI **and** Codex-backed Python→Rust porting workflow. v0.1 analyzes any Python repository and produces evidence-backed portability reports. v0.2 adds one-command porting: `pointer port ./my-project --target rust --agent codex`.
 
+**Current release: v0.2.1.** This maintenance release improves Rust toolchain discovery and makes failed/repairing port runs more reliable and diagnosable.
+
 ## What's new in v0.2.0 — The Final Fantasy
 
 ```bash
@@ -240,6 +242,10 @@ Every analysis report answers nine questions across Markdown and JSON:
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Pointer is developed test-first with 221+ tests covering static analysis, porting, security, determinism, and integration.
+
+## Maintenance
+
+Pointer is maintained by **Madoka** under PilkQuant. See [MAINTAINERS.md](MAINTAINERS.md) for ownership and release responsibilities.
 
 ## License
 

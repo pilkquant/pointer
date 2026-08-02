@@ -4,13 +4,16 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pointer-cli"
-version = "0.2.0"
+version = "0.2.1"
 description = "Point it at Python. Get an evidence-backed path to native Rust — static analysis + Codex-backed porting."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.11"
 authors = [
     { name = "pilkquant" },
+]
+maintainers = [
+    { name = "Madoka" },
 ]
 keywords = ["python", "rust", "cpp", "porting", "static-analysis", "portability", "migration"]
 classifiers = [
