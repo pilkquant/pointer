@@ -22,8 +22,10 @@ This maintenance release hardens the verified Python-to-Rust porting workflow in
 - Installed-wheel smoke analysis of `examples/tinycalc` produces Markdown and JSON reports.
 - GitHub CI is green on the two fixes included in this release.
 
-### Install after publication
+### Install
 
 ```bash
-pip install pointer-cli==0.2.1
+pip install https://github.com/pilkquant/pointer/releases/download/v0.2.1/pointer_cli-0.2.1-py3-none-any.whl
 ```
+
+The GitHub release is live. PyPI installation will become available after the repository's trusted publisher is registered on PyPI.
