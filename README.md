@@ -36,12 +36,10 @@ Key additions:
 ## Install
 
 ```bash
-pip install https://github.com/pilkquant/pointer/releases/download/v0.2.1/pointer_cli-0.2.1-py3-none-any.whl
+pip install pointer-cli
 ```
 
-PyPI installation with `pip install pointer-cli` will become available after the repository's trusted publisher is registered on PyPI.
-
-Pointer has **zero runtime dependencies** — it uses only the Python standard library. Requires Python 3.11+.
+Pointer is published on [PyPI](https://pypi.org/project/pointer-cli/) and has **zero runtime dependencies** — it uses only the Python standard library. Requires Python 3.11+.
 
 For the `port` command you also need:
 
